@@ -55,58 +55,64 @@ class DocumentCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Subject Tag
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: subjectColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  Expanded(
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
+                        // Subject Tag
                         Container(
-                          width: 6,
-                          height: 6,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: subjectColor,
-                            shape: BoxShape.circle,
+                            color: subjectColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: subjectColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                document.subjectCode?.isNotEmpty == true
+                                    ? '${document.subjectCode} - ${document.subjectName ?? ''}'
+                                    : (document.subjectName ?? 'Môn học'),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: subjectColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          document.subjectCode?.isNotEmpty == true
-                              ? '${document.subjectCode} - ${document.subjectName ?? ''}'
-                              : (document.subjectName ?? 'Môn học'),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: subjectColor,
+
+                        // Category Tag
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: categoryColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            document.categoryName ?? 'Phân loại',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: categoryColor,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-
-                  // Category Tag
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: categoryColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      document.categoryName ?? 'Phân loại',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: categoryColor,
-                      ),
-                    ),
-                  ),
-
-                  const Spacer(),
 
                   // Favorite Button
                   IconButton(
@@ -188,33 +194,42 @@ class DocumentCard extends StatelessWidget {
               // Footer: File Type, Size, Date, Completed checkbox
               Row(
                 children: [
-                  Icon(
-                    AppIcons.getFileTypeIcon(document.fileType),
-                    size: 16,
-                    color: Colors.grey.shade600,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    document.fileType,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                  if (document.fileSizeBytes > 0) ...[
-                    const SizedBox(width: 8),
-                    Text('•', style: TextStyle(color: Colors.grey.shade400)),
-                    const SizedBox(width: 8),
-                    Text(
-                      FileHelper.formatBytes(document.fileSizeBytes),
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          Icon(
+                            AppIcons.getFileTypeIcon(document.fileType),
+                            size: 15,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            document.fileType,
+                            style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                          ),
+                          if (document.fileSizeBytes > 0) ...[
+                            const SizedBox(width: 6),
+                            Text('•', style: TextStyle(color: Colors.grey.shade400)),
+                            const SizedBox(width: 6),
+                            Text(
+                              FileHelper.formatBytes(document.fileSizeBytes),
+                              style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                            ),
+                          ],
+                          const SizedBox(width: 6),
+                          Text('•', style: TextStyle(color: Colors.grey.shade400)),
+                          const SizedBox(width: 6),
+                          Text(
+                            DateFormatter.formatRelative(document.dateTimeModified),
+                            style: TextStyle(fontSize: 11.5, color: Colors.grey.shade500),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                  const SizedBox(width: 8),
-                  Text('•', style: TextStyle(color: Colors.grey.shade400)),
-                  const SizedBox(width: 8),
-                  Text(
-                    DateFormatter.formatRelative(document.dateTimeModified),
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
 
                   // Mark as completed checkbox
                   InkWell(

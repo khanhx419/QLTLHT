@@ -217,7 +217,7 @@ class _DashboardView extends StatelessWidget {
               mainAxisSpacing: 12,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 1.4,
+              childAspectRatio: 1.25,
               children: [
                 StatSummaryCard(
                   title: 'Tổng tài liệu',
