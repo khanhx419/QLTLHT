@@ -56,61 +56,73 @@ class DocumentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        // Subject Tag
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: subjectColor.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: subjectColor,
-                                  shape: BoxShape.circle,
-                                ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            // Subject Tag
+                            Container(
+                              constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: subjectColor.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                document.subjectCode?.isNotEmpty == true
-                                    ? '${document.subjectCode} - ${document.subjectName ?? ''}'
-                                    : (document.subjectName ?? 'Môn học'),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: subjectColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      document.subjectCode?.isNotEmpty == true
+                                          ? '${document.subjectCode} - ${document.subjectName ?? ''}'
+                                          : (document.subjectName ?? 'Môn học'),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: subjectColor,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Category Tag
+                            Container(
+                              constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: categoryColor.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                document.categoryName ?? 'Phân loại',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: subjectColor,
+                                  fontWeight: FontWeight.w500,
+                                  color: categoryColor,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          ),
-                        ),
-
-                        // Category Tag
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: categoryColor.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            document.categoryName ?? 'Phân loại',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: categoryColor,
                             ),
-                          ),
-                        ),
-                      ],
+                          ],
+                        );
+                      },
                     ),
                   ),
 
