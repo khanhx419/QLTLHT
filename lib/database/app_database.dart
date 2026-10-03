@@ -5,6 +5,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import '../core/constants/app_constants.dart';
 import 'initial_data.dart';
 
@@ -37,8 +38,10 @@ class AppDatabase {
   }
 
   Future<Database> _initDatabase({String? customPath}) async {
-    // Enable FFI on Windows/Linux/macOS or pure Dart VM
-    if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    // Enable FFI on Web or Windows/Linux/macOS
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
