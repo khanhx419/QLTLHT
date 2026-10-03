@@ -1,0 +1,252 @@
+import 'package:flutter/material.dart';
+import '../core/constants/app_icons.dart';
+import '../core/utils/date_formatter.dart';
+import '../core/utils/file_helper.dart';
+import '../models/document.dart';
+
+class DocumentCard extends StatelessWidget {
+  final Document document;
+  final VoidCallback onTap;
+  final VoidCallback onToggleFavorite;
+  final VoidCallback onToggleCompleted;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const DocumentCard({
+    super.key,
+    required this.document,
+    required this.onTap,
+    required this.onToggleFavorite,
+    required this.onToggleCompleted,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final subjectColor = document.subjectColor != null
+        ? Color(document.subjectColor!)
+        : theme.colorScheme.primary;
+    final categoryColor = document.categoryColor != null
+        ? Color(document.categoryColor!)
+        : Colors.grey;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? Colors.grey.shade800
+              : Colors.grey.shade200,
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Badges & Actions
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Subject Tag
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: subjectColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: subjectColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          document.subjectCode?.isNotEmpty == true
+                              ? '${document.subjectCode} - ${document.subjectName ?? ''}'
+                              : (document.subjectName ?? 'Môn học'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: subjectColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Category Tag
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: categoryColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      document.categoryName ?? 'Phân loại',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: categoryColor,
+                      ),
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  // Favorite Button
+                  IconButton(
+                    icon: Icon(
+                      document.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                      color: document.isFavorite ? Colors.amber : Colors.grey.shade400,
+                      size: 22,
+                    ),
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(4),
+                    onPressed: onToggleFavorite,
+                  ),
+
+                  // More Menu (Edit / Delete)
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert_rounded, size: 20, color: Colors.grey.shade500),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onSelected: (val) {
+                      if (val == 'edit') onEdit();
+                      if (val == 'delete') onDelete();
+                    },
+                    itemBuilder: (ctx) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_outlined, size: 18),
+                            SizedBox(width: 8),
+                            Text('Chỉnh sửa'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Xóa tài liệu', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
+
+              // Title
+              Text(
+                document.title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  decoration: document.isCompleted ? TextDecoration.lineThrough : null,
+                  color: document.isCompleted ? Colors.grey : null,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              if (document.description.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  document.description,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+
+              const SizedBox(height: 12),
+
+              // Footer: File Type, Size, Date, Completed checkbox
+              Row(
+                children: [
+                  Icon(
+                    AppIcons.getFileTypeIcon(document.fileType),
+                    size: 16,
+                    color: Colors.grey.shade600,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    document.fileType,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                  if (document.fileSizeBytes > 0) ...[
+                    const SizedBox(width: 8),
+                    Text('•', style: TextStyle(color: Colors.grey.shade400)),
+                    const SizedBox(width: 8),
+                    Text(
+                      FileHelper.formatBytes(document.fileSizeBytes),
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                  ],
+                  const SizedBox(width: 8),
+                  Text('•', style: TextStyle(color: Colors.grey.shade400)),
+                  const SizedBox(width: 8),
+                  Text(
+                    DateFormatter.formatRelative(document.dateTimeModified),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  ),
+                  const Spacer(),
+
+                  // Mark as completed checkbox
+                  InkWell(
+                    onTap: onToggleCompleted,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Row(
+                      children: [
+                        Icon(
+                          document.isCompleted
+                              ? Icons.check_circle_rounded
+                              : Icons.radio_button_unchecked_rounded,
+                          size: 18,
+                          color: document.isCompleted ? Colors.green : Colors.grey.shade400,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          document.isCompleted ? 'Đã học' : 'Chưa học',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: document.isCompleted ? Colors.green : Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
